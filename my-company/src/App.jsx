@@ -3,13 +3,13 @@ import Home from './components/HomePage.jsx'
 import About from './components/AboutPage.jsx'
 import Services from './components/Services.jsx'
 import Contact from './components/Contact.jsx'
-import NavBar from './components/NavBar.jsx'
+import Navbar from './components/Navbar.jsx'
 
 function App() {
   return (
     <BrowserRouter>
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f1f5f9' }}>
-        <NavBar />
+        <Navbar />
         <main style={{ flex: 1 }}>
           <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '24px 20px' }}>
             <Routes>
