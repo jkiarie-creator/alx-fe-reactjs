@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-function NavBar() {
+function Navbar() {
   return (
     <nav style={{
       padding: '12px 24px',
@@ -37,6 +37,6 @@ function NavBar() {
   )
 }
 
-export default NavBar
+export default Navbar
 
 
