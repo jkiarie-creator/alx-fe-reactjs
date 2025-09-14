@@ -1,27 +1,14 @@
-import { useEffect } from 'react';
 import { useRecipeStore } from './recipeStore';
 import { Link } from 'react-router-dom';
 import FavoriteButton from './FavoriteButton';
 
-  export default function RecipeList() {
-  const { 
-    filteredRecipes, 
-    recipes, 
-    searchTerm, 
-    initializeFilteredRecipes 
-  } = useRecipeStore(state => ({
-    filteredRecipes: state.filteredRecipes,
+export default function FavoritesList() {
+  const { recipes, favorites } = useRecipeStore(state => ({
     recipes: state.recipes,
-    searchTerm: state.searchTerm,
-    initializeFilteredRecipes: state.initializeFilteredRecipes
+    favorites: state.favorites
   }));
 
-  // Initialize filtered recipes when component mounts
-  useEffect(() => {
-    if (filteredRecipes.length === 0 && recipes.length > 0) {
-      initializeFilteredRecipes();
-    }
-  }, [recipes.length, filteredRecipes.length, initializeFilteredRecipes]);
+  const favoriteRecipes = recipes.filter(recipe => favorites.includes(recipe.id));
 
   const cardStyle = {
     marginBottom: '20px',
@@ -30,7 +17,8 @@ import FavoriteButton from './FavoriteButton';
     borderRadius: '8px',
     backgroundColor: '#ffffff',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    position: 'relative'
   };
 
   const titleStyle = {
@@ -49,7 +37,8 @@ import FavoriteButton from './FavoriteButton';
   const buttonContainerStyle = {
     display: 'flex',
     gap: '10px',
-    marginTop: '15px'
+    marginTop: '15px',
+    flexWrap: 'wrap'
   };
 
   const buttonStyle = (variant) => ({
@@ -61,37 +50,35 @@ import FavoriteButton from './FavoriteButton';
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
     ...(variant === 'primary' ? {
       backgroundColor: '#007bff',
       color: 'white'
-    } : {
+    } : variant === 'secondary' ? {
       backgroundColor: '#28a745',
+      color: 'white'
+    } : {
+      backgroundColor: '#6c757d',
       color: 'white'
     })
   });
 
-  // Show different messages based on search state
-  const getEmptyStateMessage = () => {
-    if (searchTerm && filteredRecipes.length === 0) {
-      return {
-        title: 'No recipes found',
-        message: `No recipes match "${searchTerm}". Try a different search term.`,
-        showAddButton: false
-      };
-    } else if (recipes.length === 0) {
-      return {
-        title: 'No recipes found',
-        message: 'Start building your recipe collection by adding your first recipe.',
-        showAddButton: true
-      };
-    }
-    return null;
+  const favoriteBadgeStyle = {
+    position: 'absolute',
+    top: '15px',
+    right: '15px',
+    backgroundColor: '#ff6b6b',
+    color: 'white',
+    padding: '4px 8px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: 'bold'
   };
 
-  const emptyState = getEmptyStateMessage();
-
-    return (
-      <div>
+  return (
+    <div>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -99,25 +86,21 @@ import FavoriteButton from './FavoriteButton';
         marginBottom: '30px'
       }}>
         <h2 style={{ color: '#495057', margin: 0 }}>
-          {searchTerm ? `Search Results (${filteredRecipes.length})` : `All Recipes (${filteredRecipes.length})`}
+          My Favorite Recipes ({favoriteRecipes.length})
         </h2>
-        <Link 
-          to="/add"
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '6px',
-            fontSize: '16px',
-            fontWeight: '500'
-          }}
-        >
-          ➕ Add New Recipe
-        </Link>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '10px',
+          color: '#6c757d',
+          fontSize: '14px'
+        }}>
+          <span>❤️</span>
+          <span>Recipes you love</span>
+        </div>
       </div>
 
-      {emptyState ? (
+      {favoriteRecipes.length === 0 ? (
         <div style={{ 
           textAlign: 'center', 
           padding: '60px 20px',
@@ -125,34 +108,38 @@ import FavoriteButton from './FavoriteButton';
           borderRadius: '8px',
           border: '2px dashed #dee2e6'
         }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>❤️</div>
           <h3 style={{ color: '#6c757d', marginBottom: '15px' }}>
-            {emptyState.title}
+            No favorite recipes yet
           </h3>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            {emptyState.message}
+            Start building your collection by adding recipes to your favorites. 
+            Click the heart icon on any recipe to add it here!
           </p>
-          {emptyState.showAddButton && (
-            <Link 
-              to="/add"
-              style={{ 
-                display: 'inline-block',
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '500'
-              }}
-            >
-              Add Your First Recipe
-            </Link>
-          )}
+          <Link 
+            to="/recipes"
+            style={{ 
+              display: 'inline-block',
+              padding: '12px 24px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontSize: '16px',
+              fontWeight: '500'
+            }}
+          >
+            Browse All Recipes
+          </Link>
         </div>
       ) : (
         <div>
-          {filteredRecipes.map(recipe => (
+          {favoriteRecipes.map(recipe => (
             <div key={recipe.id} style={cardStyle}>
+              <div style={favoriteBadgeStyle}>
+                FAVORITE
+              </div>
+              
               <h3 style={titleStyle}>
                 <Link 
                   to={`/recipe/${recipe.id}`}
@@ -161,7 +148,9 @@ import FavoriteButton from './FavoriteButton';
                   {recipe.title}
                 </Link>
               </h3>
+              
               <p style={descriptionStyle}>{recipe.description}</p>
+              
               <div style={buttonContainerStyle}>
                 <Link 
                   to={`/recipe/${recipe.id}`}
@@ -178,14 +167,13 @@ import FavoriteButton from './FavoriteButton';
                 <FavoriteButton 
                   recipeId={recipe.id} 
                   size="small" 
-                  showText={false}
+                  showText={true}
                 />
               </div>
             </div>
           ))}
         </div>
-        )}
-      </div>
-    );
-  }
-  
+      )}
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRecipeStore } from './recipeStore';
 import DeleteRecipeButton from './DeleteRecipeButton';
+import FavoriteButton from './FavoriteButton';
 
 const RecipeDetails = () => {
   const { id } = useParams();
@@ -114,6 +115,11 @@ const RecipeDetails = () => {
         >
           ✏️ Edit Recipe
         </button>
+        <FavoriteButton 
+          recipeId={recipe.id} 
+          size="medium" 
+          showText={true}
+        />
         <DeleteRecipeButton recipeId={recipe.id} />
       </div>
     </div>
