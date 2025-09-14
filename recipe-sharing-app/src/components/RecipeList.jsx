@@ -1,8 +1,26 @@
+import { useEffect } from 'react';
 import { useRecipeStore } from './recipeStore';
 import { Link } from 'react-router-dom';
 
 export default function RecipeList() {
-  const recipes = useRecipeStore(state => state.recipes);
+  const { 
+    filteredRecipes, 
+    recipes, 
+    searchTerm, 
+    initializeFilteredRecipes 
+  } = useRecipeStore(state => ({
+    filteredRecipes: state.filteredRecipes,
+    recipes: state.recipes,
+    searchTerm: state.searchTerm,
+    initializeFilteredRecipes: state.initializeFilteredRecipes
+  }));
+
+  // Initialize filtered recipes when component mounts
+  useEffect(() => {
+    if (filteredRecipes.length === 0 && recipes.length > 0) {
+      initializeFilteredRecipes();
+    }
+  }, [recipes.length, filteredRecipes.length, initializeFilteredRecipes]);
 
   const cardStyle = {
     marginBottom: '20px',
@@ -51,6 +69,26 @@ export default function RecipeList() {
     })
   });
 
+  // Show different messages based on search state
+  const getEmptyStateMessage = () => {
+    if (searchTerm && filteredRecipes.length === 0) {
+      return {
+        title: 'No recipes found',
+        message: `No recipes match "${searchTerm}". Try a different search term.`,
+        showAddButton: false
+      };
+    } else if (recipes.length === 0) {
+      return {
+        title: 'No recipes found',
+        message: 'Start building your recipe collection by adding your first recipe.',
+        showAddButton: true
+      };
+    }
+    return null;
+  };
+
+  const emptyState = getEmptyStateMessage();
+
   return (
     <div>
       <div style={{ 
@@ -60,7 +98,7 @@ export default function RecipeList() {
         marginBottom: '30px'
       }}>
         <h2 style={{ color: '#495057', margin: 0 }}>
-          All Recipes ({recipes.length})
+          {searchTerm ? `Search Results (${filteredRecipes.length})` : `All Recipes (${filteredRecipes.length})`}
         </h2>
         <Link 
           to="/add"
@@ -78,7 +116,7 @@ export default function RecipeList() {
         </Link>
       </div>
 
-      {recipes.length === 0 ? (
+      {emptyState ? (
         <div style={{ 
           textAlign: 'center', 
           padding: '60px 20px',
@@ -87,30 +125,32 @@ export default function RecipeList() {
           border: '2px dashed #dee2e6'
         }}>
           <h3 style={{ color: '#6c757d', marginBottom: '15px' }}>
-            No recipes found
+            {emptyState.title}
           </h3>
           <p style={{ color: '#6c757d', marginBottom: '20px' }}>
-            Start building your recipe collection by adding your first recipe.
+            {emptyState.message}
           </p>
-          <Link 
-            to="/add"
-            style={{ 
-              display: 'inline-block',
-              padding: '12px 24px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              fontWeight: '500'
-            }}
-          >
-            Add Your First Recipe
-          </Link>
+          {emptyState.showAddButton && (
+            <Link 
+              to="/add"
+              style={{ 
+                display: 'inline-block',
+                padding: '12px 24px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: '500'
+              }}
+            >
+              Add Your First Recipe
+            </Link>
+          )}
         </div>
       ) : (
         <div>
-          {recipes.map(recipe => (
+          {filteredRecipes.map(recipe => (
             <div key={recipe.id} style={cardStyle}>
               <h3 style={titleStyle}>
                 <Link 
