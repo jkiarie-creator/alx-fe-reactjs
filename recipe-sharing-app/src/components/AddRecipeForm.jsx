@@ -14,19 +14,26 @@ import { useState } from 'react';
     };
 
     return (
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description"
-        />
-        <button type="submit">Add Recipe</button>
+      <form onSubmit={handleSubmit} style={{ marginBottom: '20px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
+        <h2>Add New Recipe</h2>
+        <div style={{ marginBottom: '10px' }}>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Recipe Title"
+            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          />
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Recipe Description"
+            style={{ width: '100%', padding: '8px', height: '80px', marginBottom: '10px' }}
+          />
+        </div>
+        <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Add Recipe</button>
       </form>
     );
   };
