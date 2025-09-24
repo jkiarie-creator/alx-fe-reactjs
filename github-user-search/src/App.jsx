@@ -1,23 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import './App.css'
+import HomePage from './components/HomePage'
+import SearchPage from './components/SearchPage'
 
-function HomePage() {
-  return (
-    <section>
-      <h2>Home</h2>
-      <p>Welcome to GitHub User Search.</p>
-    </section>
-  )
-}
 
-function SearchPage() {
-  return (
-    <section>
-      <h2>Search</h2>
-      <p>Use the search bar to find a GitHub user.</p>
-    </section>
-  )
-}
 
 function NotFoundPage() {
   return (
