@@ -1,10 +1,21 @@
+import { useEffect } from 'react';
+import Search from './Search';
+import './SearchPage.css';
+
 function SearchPage() {
-    return (
-      <section>
-        <h2>Search</h2>
-        <p>Use the search bar to find a GitHub user.</p>
-      </section>
-    )
+  useEffect(() => {
+    console.log('SearchPage component mounted');
+    return () => {
+      console.log('SearchPage component unmounted');
+    };
+  }, []);
+
+  return (
+    <div className="search-page">
+      <h2 style={{ color: '#24292e' }}>GitHub User Search</h2>
+      <Search />
+    </div>
+  );
 }
 
-export default SearchPage
+export default SearchPage;
