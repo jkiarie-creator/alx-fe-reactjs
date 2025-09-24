@@ -1,49 +1,76 @@
 import { useState, useEffect } from 'react';
+import { FiSearch, FiMapPin, FiDatabase, FiCalendar, FiUsers, FiGitBranch, FiGithub } from 'react-icons/fi';
 import githubService from '../services/githubService';
-import './Search.css';
 
 function Search() {
-  console.log('Search component rendering');
-  const [username, setUsername] = useState('');
+  // Search state
+  const [searchParams, setSearchParams] = useState({
+    username: '',
+    location: '',
+    minRepos: '',
+    minFollowers: '',
+    createdAfter: ''
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [searchHistory, setSearchHistory] = useState([]);
   const [userData, setUserData] = useState(null);
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
 
-  // Handle input change
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setUsername(value);
-    
-    // Clear error when user starts typing
-    if (error) {
-      setError('');
+  // Load search history on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('githubSearchHistory');
+    if (savedHistory) {
+      setSearchHistory(JSON.parse(savedHistory));
     }
-  };
+  }, []);
 
-  // Validate username input
-  const validateUsername = (username) => {
-    if (!username.trim()) {
+  // Save search history when it changes
+  useEffect(() => {
+    if (searchHistory.length > 0) {
+      localStorage.setItem('githubSearchHistory', JSON.stringify(searchHistory));
+    }
+  }, [searchHistory]);
+
+  // Validate search parameters
+  const validateSearch = () => {
+    if (!searchParams.username.trim()) {
       return 'Please enter a GitHub username';
     }
     
     // GitHub username validation: alphanumeric, hyphens, and underscores only
     const usernameRegex = /^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
-    if (!usernameRegex.test(username.trim())) {
+    if (!usernameRegex.test(searchParams.username.trim())) {
       return 'Please enter a valid GitHub username (alphanumeric, hyphens, and underscores only)';
     }
     
     return null;
   };
 
+  // Toggle advanced search
+  const toggleAdvancedSearch = () => {
+    setShowAdvanced(!showAdvanced);
+  };
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSearchParams(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (error) setError('');
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const trimmedUsername = username.trim();
-    const validationError = validateUsername(trimmedUsername);
-    
+    const validationError = validateSearch();
     if (validationError) {
       setError(validationError);
       return;
@@ -56,16 +83,20 @@ function Search() {
 
     try {
       // Fetch user data using our service
-      const userDetails = await githubService.fetchUserData(trimmedUsername);
+      const userDetails = await githubService.fetchUserData(searchParams.username.trim());
       
       // Add to search history
-      const newSearchHistory = [trimmedUsername, ...searchHistory.filter(item => item !== trimmedUsername)].slice(0, 5);
+      const newSearchHistory = [
+        searchParams.username.trim(), 
+        ...searchHistory.filter(item => item !== searchParams.username.trim())
+      ].slice(0, 5);
+      
       setSearchHistory(newSearchHistory);
       
       // Set user data for display
       setUserData(userDetails);
     } catch (err) {
-      setError(err.message || 'Failed to fetch user data');
+      setError(err.message || 'Failed to fetch user data. The user may not exist or there was an issue with the request.');
       setUserData(null);
     } finally {
       setIsLoading(false);
@@ -74,180 +105,280 @@ function Search() {
 
   // Handle search history click
   const handleHistoryClick = (historyUsername) => {
-    setUsername(historyUsername);
+    setSearchParams(prev => ({
+      ...prev,
+      username: historyUsername
+    }));
     setError('');
   };
 
   // Clear search
   const handleClear = () => {
-    setUsername('');
+    setSearchParams({
+      username: '',
+      location: '',
+      minRepos: '',
+      minFollowers: '',
+      createdAfter: ''
+    });
     setError('');
     setUserData(null);
     setSearchPerformed(false);
   };
 
   return (
-    <div className="search-container">
-      <form onSubmit={handleSubmit} className="search-form">
-        <div className="search-input-group">
-          <div className="search-input-wrapper">
+    <div className="space-y-6">
+      {/* Search Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-grow relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FiSearch className="h-5 w-5 text-gray-400" />
+            </div>
             <input
               type="text"
-              value={username}
+              name="username"
+              value={searchParams.username}
               onChange={handleInputChange}
-              placeholder="Enter GitHub username..."
-              className={`search-input ${error ? 'error' : ''}`}
+              placeholder="Enter GitHub username"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               disabled={isLoading}
-              autoComplete="off"
-              spellCheck="false"
-              autoFocus
-              style={{ caretColor: '#0366d6' }}
+              aria-label="GitHub username"
             />
-            {username && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="clear-button"
-                disabled={isLoading}
-                aria-label="Clear search"
-              >
-                ×
-              </button>
-            )}
           </div>
-          
-          <div className="search-button-wrapper">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? 'Searching...' : 'Search'}
+          </button>
+          {searchPerformed && (
             <button
-              type="submit"
-              className={`search-button ${isLoading ? 'loading' : ''}`}
-              disabled={isLoading || !username.trim()}
+              type="button"
+              onClick={handleClear}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {isLoading ? (
-                <>
-                  <span className="spinner"></span>
-                  Searching...
-                </>
-              ) : (
-                'Search'
-              )}
+              Clear
             </button>
-          </div>
+          )}
         </div>
 
-        {error && (
-          <div className="error-message" role="alert">
-            <span className="error-icon">⚠️</span>
-            {error}
-          </div>
-        )}
+        {/* Advanced Search Toggle */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={toggleAdvancedSearch}
+            className="text-sm text-blue-600 hover:text-blue-800 focus:outline-none"
+            aria-expanded={showAdvanced}
+            aria-controls="advanced-search-fields"
+          >
+            {showAdvanced ? 'Hide Advanced' : 'Show Advanced'} Search
+          </button>
+        </div>
 
-        {searchHistory.length > 0 && (
-          <div className="search-history">
-            <h4>Recent Searches:</h4>
-            <div className="history-tags">
-              {searchHistory.map((historyUsername, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => handleHistoryClick(historyUsername)}
-                  className="history-tag"
-                  disabled={isLoading}
-                >
-                  {historyUsername}
-                </button>
-              ))}
+        {/* Advanced Search Fields */}
+        {showAdvanced && (
+          <div id="advanced-search-fields" className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 p-4 bg-gray-50 rounded-md">
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                Location
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiMapPin className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="location"
+                  id="location"
+                  value={searchParams.location}
+                  onChange={handleInputChange}
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                  placeholder="e.g. Nairobi"
+                  aria-label="Filter by location"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="minRepos" className="block text-sm font-medium text-gray-700">
+                Min Repositories
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiDatabase className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="number"
+                  name="minRepos"
+                  id="minRepos"
+                  value={searchParams.minRepos}
+                  onChange={handleInputChange}
+                  min="0"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                  placeholder="0"
+                  aria-label="Minimum number of repositories"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="minFollowers" className="block text-sm font-medium text-gray-700">
+                Min Followers
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiUsers className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="number"
+                  name="minFollowers"
+                  id="minFollowers"
+                  value={searchParams.minFollowers}
+                  onChange={handleInputChange}
+                  min="0"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                  placeholder="0"
+                  aria-label="Minimum number of followers"
+                />
+              </div>
             </div>
           </div>
         )}
       </form>
 
-      <div className="search-tips">
-        <h4>Search Tips:</h4>
-        <ul>
-          <li>Enter exact GitHub usernames for best results</li>
-          <li>Usernames can contain letters, numbers, hyphens, and underscores</li>
-          <li>Try searching for popular users like "octocat" or "torvalds"</li>
-        </ul>
-      </div>
-
-      {/* User Profile Section */}
-      {isLoading ? (
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading user data...</p>
+      {/* Error Message */}
+      {error && (
+        <div className="rounded-md bg-red-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            </div>
+          </div>
         </div>
-      ) : error ? (
-        <div className="error-state">
-          <p>❌ {error}</p>
-          {error.includes('not found') && (
-            <p>Looks like we cant find the user "{username}"</p>
-          )}
+      )}
+
+      {/* Search History */}
+      {searchHistory.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-500 mb-2">Recent Searches:</h3>
+          <div className="flex flex-wrap gap-2">
+            {searchHistory.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => handleHistoryClick(item)}
+                className="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                aria-label={`Search for ${item}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* User Profile */}
+      {isLoading ? (
+        <div className="mt-8 flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500" aria-label="Loading"></div>
         </div>
       ) : userData ? (
-        <div className="user-profile">
-          <div className="profile-header">
+        <div className="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6 flex items-center space-x-4">
             <img 
+              className="h-16 w-16 rounded-full" 
               src={userData.avatar_url} 
-              alt={`${userData.login}'s avatar`} 
-              className="avatar"
+              alt={userData.name || userData.login} 
             />
-            <div className="profile-info">
-              <h2>{userData.name || userData.login}</h2>
-              {userData.name && <p className="username">@{userData.login}</p>}
-              {userData.bio && <p className="bio">{userData.bio}</p>}
-              <a 
-                href={userData.html_url} 
-                target="_blank" 
+            <div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                {userData.name || userData.login}
+                {userData.name && <span className="text-gray-500 ml-2">({userData.login})</span>}
+              </h3>
+              {userData.bio && (
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                  {userData.bio}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Company</dt>
+                <dd className="mt-1 text-sm text-gray-900">{userData.company || 'Not specified'}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Location</dt>
+                <dd className="mt-1 text-sm text-gray-900">{userData.location || 'Not specified'}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Email</dt>
+                <dd className="mt-1 text-sm text-gray-900">{userData.email || 'Not specified'}</dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Blog/Website</dt>
+                <dd className="mt-1 text-sm text-gray-900">
+                  {userData.blog ? (
+                    <a href={userData.blog} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {userData.blog}
+                    </a>
+                  ) : (
+                    'Not specified'
+                  )}
+                </dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Public Repositories</dt>
+                <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                  <FiGitBranch className="mr-1.5 h-4 w-4 text-gray-400" />
+                  {userData.public_repos?.toLocaleString() || '0'}
+                </dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Followers</dt>
+                <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                  <FiUsers className="mr-1.5 h-4 w-4 text-gray-400" />
+                  {userData.followers?.toLocaleString() || '0'}
+                </dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Following</dt>
+                <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                  <FiUsers className="mr-1.5 h-4 w-4 text-gray-400" />
+                  {userData.following?.toLocaleString() || '0'}
+                </dd>
+              </div>
+              <div className="sm:col-span-1">
+                <dt className="text-sm font-medium text-gray-500">Account Created</dt>
+                <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                  <FiCalendar className="mr-1.5 h-4 w-4 text-gray-400" />
+                  {userData.created_at ? new Date(userData.created_at).toLocaleDateString() : 'Unknown'}
+                </dd>
+              </div>
+            </dl>
+            <div className="mt-6">
+              <a
+                href={userData.html_url}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="github-link"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
+                <FiGithub className="mr-2 h-4 w-4" />
                 View on GitHub
               </a>
             </div>
           </div>
-          
-          <div className="profile-stats">
-            <div className="stat">
-              <span className="stat-count">{userData.public_repos || 0}</span>
-              <span className="stat-label">Repositories</span>
-            </div>
-            <div className="stat">
-              <span className="stat-count">{userData.followers || 0}</span>
-              <span className="stat-label">Followers</span>
-            </div>
-            <div className="stat">
-              <span className="stat-count">{userData.following || 0}</span>
-              <span className="stat-label">Following</span>
-            </div>
-          </div>
-          
-          {userData.repos && userData.repos.length > 0 && (
-            <div className="recent-repos">
-              <h3>Recent Repositories</h3>
-              <div className="repo-list">
-                {userData.repos.map(repo => (
-                  <a 
-                    key={repo.id}
-                    href={repo.html_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="repo-card"
-                  >
-                    <h4>{repo.name}</h4>
-                    <p>{repo.description || 'No description'}</p>
-                    <div className="repo-meta">
-                      <span>⭐ {repo.stargazers_count || 0}</span>
-                      <span>🍴 {repo.forks_count || 0}</span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       ) : searchPerformed ? (
-        <div className="no-results">
-          <p>No user data to display. Try searching for a GitHub username.</p>
+        <div className="mt-8 text-center">
+          <p className="text-gray-500">No user found with that username. Please try another search.</p>
         </div>
       ) : null}
     </div>
