@@ -9,8 +9,27 @@ function Search() {
     location: '',
     minRepos: '',
     minFollowers: '',
-    createdAfter: ''
+    createdAfter: '',
+    language: '',
+    sortBy: 'repositories',
+    order: 'desc'
   });
+  
+  const [languages, setLanguages] = useState([]);
+  
+  // Load available languages on component mount
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const langs = await githubService.getLanguages();
+        setLanguages(langs);
+      } catch (error) {
+        console.error('Failed to load languages:', error);
+      }
+    };
+    
+    fetchLanguages();
+  }, []);
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -82,8 +101,20 @@ function Search() {
     setUserData(null);
 
     try {
+      // Prepare search parameters
+      const searchCriteria = {
+        username: searchParams.username.trim(),
+        location: searchParams.location.trim() || undefined,
+        minRepos: searchParams.minRepos || undefined,
+        minFollowers: searchParams.minFollowers || undefined,
+        createdAfter: searchParams.createdAfter || undefined,
+        language: searchParams.language || undefined,
+        sortBy: searchParams.sortBy,
+        order: searchParams.order
+      };
+      
       // Fetch user data using our service
-      const userDetails = await githubService.fetchUserData(searchParams.username.trim());
+      const result = await githubService.searchUsers(searchCriteria);
       
       // Add to search history
       const newSearchHistory = [
@@ -93,10 +124,14 @@ function Search() {
       
       setSearchHistory(newSearchHistory);
       
-      // Set user data for display
-      setUserData(userDetails);
+      // Set user data for display - take the first result
+      if (result.items && result.items.length > 0) {
+        setUserData(result.items[0]);
+      } else {
+        setError('No users found matching the search criteria.');
+      }
     } catch (err) {
-      setError(err.message || 'Failed to fetch user data. The user may not exist or there was an issue with the request.');
+      setError(err.message || 'Failed to fetch user data. Please check your search criteria and try again.');
       setUserData(null);
     } finally {
       setIsLoading(false);
@@ -119,7 +154,10 @@ function Search() {
       location: '',
       minRepos: '',
       minFollowers: '',
-      createdAfter: ''
+      createdAfter: '',
+      language: '',
+      sortBy: 'repositories',
+      order: 'desc'
     });
     setError('');
     setUserData(null);
@@ -242,6 +280,85 @@ function Search() {
                   placeholder="0"
                   aria-label="Minimum number of followers"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="createdAfter" className="block text-sm font-medium text-gray-700">
+                Created After
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiCalendar className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  name="createdAfter"
+                  id="createdAfter"
+                  value={searchParams.createdAfter}
+                  onChange={handleInputChange}
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                  aria-label="Account created after date"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="language" className="block text-sm font-medium text-gray-700">
+                Primary Language
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <select
+                  name="language"
+                  id="language"
+                  value={searchParams.language}
+                  onChange={handleInputChange}
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md h-9"
+                >
+                  <option value="">Any language</option>
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700">
+                Sort By
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <select
+                  name="sortBy"
+                  id="sortBy"
+                  value={searchParams.sortBy}
+                  onChange={handleInputChange}
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md h-9"
+                >
+                  <option value="repositories">Repositories</option>
+                  <option value="followers">Followers</option>
+                  <option value="joined">Join Date</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="order" className="block text-sm font-medium text-gray-700">
+                Sort Order
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <select
+                  name="order"
+                  id="order"
+                  value={searchParams.order}
+                  onChange={handleInputChange}
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md h-9"
+                >
+                  <option value="desc">Descending</option>
+                  <option value="asc">Ascending</option>
+                </select>
               </div>
             </div>
           </div>

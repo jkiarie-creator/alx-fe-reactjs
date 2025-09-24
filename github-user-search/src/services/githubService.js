@@ -1,99 +1,131 @@
 import axios from 'axios';
 
-// Get environment variables
-const GITHUB_API_KEY = import.meta.env.VITE_APP_GITHUB_API_KEY;
-const GITHUB_API_BASE_URL = import.meta.env.VITE_APP_GITHUB_API_BASE_URL || 'https://api.github.com';
-
-// Create axios instance with base configuration
+// Create an instance of axios with default config
 const githubApi = axios.create({
-  baseURL: GITHUB_API_BASE_URL,
+  baseURL: 'https://api.github.com',
   headers: {
     'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'GitHub-User-Search-App',
-    // Add authorization header if API key is provided
-    ...(GITHUB_API_KEY && { 'Authorization': `token ${GITHUB_API_KEY}` })
+    // Note: In a production app, you'd want to handle authentication properly
+    // 'Authorization': `token ${process.env.REACT_APP_GITHUB_TOKEN}`
   }
 });
 
-// Request interceptor for logging (optional)
-githubApi.interceptors.request.use(
-  (config) => {
-    console.log(`Making request to: ${config.baseURL}${config.url}`);
-    return config;
-  },
-  (error) => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor for error handling
-githubApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    
-    // Handle specific GitHub API errors
-    if (error.response?.status === 403) {
-      console.error('Rate limit exceeded or API key invalid');
-    } else if (error.response?.status === 404) {
-      console.error('User not found');
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
 /**
- * Gets all the important info about a GitHub user in one go
- * @param {string} username - The GitHub username to look up (e.g., 'octocat')
- * @returns {Promise<Object>} User's profile with their latest repos and social stats
+ * Helper function to handle API errors
+ * @private
+ * @param {Error} error - The error that occurred
+ * @param {string} [customMessage='API request failed'] - Custom error message
+ * @throws {Error} Throws an error with a descriptive message
  */
-const fetchUserData = async (username) => {
-  try {
-    // Get basic user data
-    const userResponse = await githubApi.get(`/users/${username}`);
-    const userData = userResponse.data;
-
-    // Get user repositories
-    const reposResponse = await githubApi.get(`/users/${username}/repos`, {
-      params: {
-        sort: 'updated',
-        per_page: 5, // Limit to 5 most recently updated repos
-        direction: 'desc'
-      }
-    });
-
-    // Combine all the data
-    return {
-      ...userData,
-      repos: reposResponse.data,
-      followers_count: userData.followers || 0,
-      following_count: userData.following || 0
-    };
-  } catch (error) {
-    handleApiError(error);
+const handleApiError = (error, customMessage = 'API request failed') => {
+  if (error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    if (error.response.status === 404) {
+      throw new Error('User not found. Please check the username and try again.');
+    } else if (error.response.status === 403) {
+      // GitHub API rate limit exceeded
+      throw new Error('API rate limit exceeded. Please try again later.');
+    } else if (error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+  } else if (error.request) {
+    // The request was made but no response was received
+    throw new Error('No response from server. Please check your internet connection.');
   }
+  // Something happened in setting up the request that triggered an Error
+  throw new Error(customMessage);
 };
 
 /**
- * Search for GitHub users by username
- * @param {string} query - What to search for (e.g., 'john')
- * @param {number} [page=1] - Which page of results to show
- * @param {number} [perPage=10] - How many results per page (max 100)
- * @returns {Promise<Object>} List of matching users and total count
+ * Builds a search query string based on the provided parameters
+ * @param {Object} params - Search parameters
+ * @returns {string} Formatted search query string
  */
-const searchUsers = async (query, page = 1, perPage = 10) => {
+const buildSearchQuery = (params = {}) => {
+  const queryParts = [];
+  
+  // Add username if provided
+  if (params.username) {
+    queryParts.push(`${params.username} in:login`);
+  }
+  
+  // Add location filter if provided
+  if (params.location) {
+    queryParts.push(`location:${params.location}`);
+  }
+  
+  // Add minimum repositories filter if provided
+  if (params.minRepos) {
+    queryParts.push(`repos:>=${params.minRepos}`);
+  }
+  
+  // Add minimum followers filter if provided
+  if (params.minFollowers) {
+    queryParts.push(`followers:>=${params.minFollowers}`);
+  }
+  
+  // Add account creation date filter if provided
+  if (params.createdAfter) {
+    queryParts.push(`created:>=${params.createdAfter}`);
+  }
+  
+  // Add language filter if provided
+  if (params.language) {
+    queryParts.push(`language:${params.language}`);
+  }
+  
+  // If no specific filters, default to searching for all users
+  if (queryParts.length === 0) {
+    queryParts.push('type:user');
+  }
+  
+  return queryParts.join('+');
+};
+
+/**
+ * Search for GitHub users with advanced filters
+ * @param {Object} searchParams - Search criteria
+ * @param {string} searchParams.username - Username to search for
+ * @param {string} searchParams.location - Location filter
+ * @param {number} searchParams.minRepos - Minimum number of repositories
+ * @param {number} searchParams.minFollowers - Minimum number of followers
+ * @param {string} searchParams.createdAfter - Account creation date (YYYY-MM-DD)
+ * @param {string} searchParams.language - Primary programming language
+ * @param {string} searchParams.sortBy - Field to sort by (followers, repositories, joined)
+ * @param {string} searchParams.order - Sort order (asc or desc)
+ * @param {number} [page=1] - Page number for pagination
+ * @param {number} [perPage=10] - Number of results per page (max 100)
+ * @returns {Promise<Object>} Search results with user data and pagination info
+ */
+const searchUsers = async (searchParams = {}, page = 1, perPage = 10) => {
   try {
+    const query = buildSearchQuery(searchParams);
     const response = await githubApi.get('/search/users', {
       params: {
         q: query,
         page,
         per_page: perPage,
-        sort: 'followers'
+        sort: searchParams.sortBy || 'repositories',
+        order: searchParams.order || 'desc'
       }
     });
-    return response.data;
+
+    // Get detailed information for each user
+    const users = await Promise.all(
+      response.data.items.map(user => 
+        githubApi.get(`/users/${user.login}`).then(res => res.data)
+      )
+    );
+
+    return {
+      total_count: response.data.total_count,
+      incomplete_results: response.data.incomplete_results,
+      items: users,
+      page,
+      per_page: perPage,
+      has_more: (page * perPage) < response.data.total_count
+    };
   } catch (error) {
     handleApiError(error, 'Failed to search users');
   }
@@ -173,41 +205,41 @@ const getUserFollowing = async (username, page = 1, perPage = 10) => {
 };
 
 /**
- * Helper function to make error messages more helpful
- * @private
- * @param {Error} error - The error that happened
- * @param {string} [customMessage='API request failed'] - What went wrong in simple terms
+ * Get available programming languages from GitHub API
+ * @returns {Promise<Array>} List of programming languages
  */
-const handleApiError = (error, customMessage = 'API request failed') => {
-  // Handle 404 - User not found
-  if (error.response?.status === 404) {
-    throw new Error('User not found. Please check the username and try again.');
+const getLanguages = async () => {
+  try {
+    // This is a workaround since GitHub doesn't have a direct API for languages
+    // We'll use the list of languages from GitHub's trending page
+    const response = await githubApi.get('/languages');
+    return Object.keys(response.data || {}).sort();
+  } catch (error) {
+    console.warn('Failed to fetch languages, using default list');
+    // Return a default list of popular languages
+    return [
+      'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'C++', 'PHP', 'Ruby',
+      'Go', 'Swift', 'Kotlin', 'Rust', 'Dart', 'Scala', 'Perl', 'R', 'Objective-C'
+    ];
   }
-  
-  // Handle rate limiting
-  if (error.response?.status === 403) {
-    const resetTime = error.response.headers['x-ratelimit-reset'];
-    const resetDate = resetTime ? new Date(resetTime * 1000).toLocaleTimeString() : 'later';
-    throw new Error(`API rate limit exceeded. Please try again after ${resetDate}`);
-  }
-  
-  // Handle other errors
-  const errorMessage = error.response?.data?.message || error.message;
-  throw new Error(`${customMessage}: ${errorMessage}`);
 };
 
+// Export all the functions
 export default {
   // User data
-  fetchUserData,
   getUser,
   
-  // Search
+  // Search functionality
   searchUsers,
+  getLanguages,
   
   // Repositories
   getUserRepos,
   
   // Social
   getUserFollowers,
-  getUserFollowing
+  getUserFollowing,
+  
+  // Error handling
+  handleApiError
 };
