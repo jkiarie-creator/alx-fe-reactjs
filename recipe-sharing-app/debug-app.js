@@ -37,3 +37,4 @@ console.error = function(...args) {
 };
 
 console.log('Debug script loaded. Check the console for any errors above.');
+
