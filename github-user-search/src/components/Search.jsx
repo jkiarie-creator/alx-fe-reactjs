@@ -180,7 +180,7 @@ function Search() {
         <div className="error-state">
           <p>❌ {error}</p>
           {error.includes('not found') && (
-            <p>Looks like we can't find the user "{username}"</p>
+            <p>Looks like we cant find the user "{username}"</p>
           )}
         </div>
       ) : userData ? (
