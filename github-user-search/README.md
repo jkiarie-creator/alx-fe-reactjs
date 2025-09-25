@@ -27,18 +27,14 @@ A React application for searching GitHub users and viewing their profiles, repos
 
 ### Environment Setup
 
-1. Copy the environment template:
-   ```bash
-   copy env.template .env
-   ```
 
-2. Edit the `.env` file and add your GitHub API credentials:
+1. Edit the `.env` file and add your GitHub API credentials:
    ```env
    VITE_APP_GITHUB_API_KEY=your_github_personal_access_token_here
    VITE_APP_GITHUB_API_BASE_URL=https://api.github.com
    ```
 
-3. **Getting a GitHub API Key (Optional but Recommended):**
+2. **Getting a GitHub API Key (Optional but Recommended):**
    - Go to [GitHub Settings > Personal Access Tokens](https://github.com/settings/tokens)
    - Click "Generate new token (classic)"
    - Select scopes: `public_repo` (for public repositories)
@@ -61,7 +57,7 @@ npm run preview
 
 ## API Service
 
-The application uses a centralized API service (`src/services/githubApi.js`) that handles all GitHub API interactions. The service automatically uses environment variables for configuration and includes:
+The application uses a centralized API service (`src/services/githubService.js`) that handles all GitHub API interactions. The service automatically uses environment variables for configuration and includes:
 
 - User search functionality
 - User profile retrieval
@@ -83,6 +79,8 @@ The application uses a centralized API service (`src/services/githubApi.js`) tha
 - React Router DOM
 - Axios
 - CSS3
+- GitHub API
+- Tailwind CSS
 
 ## Contributing
 
