@@ -1,15 +1,8 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import Search from './Search';
 
 function SearchPage() {
-  useEffect(() => {
-    console.log('SearchPage component mounted');
-    return () => {
-      console.log('SearchPage component unmounted');
-    };
-  }, []);
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">

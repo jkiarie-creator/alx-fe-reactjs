@@ -1,5 +1,4 @@
 // Placeholder UserProfile component
-// This will be implemented in the next step
 function UserProfile({ user, searchResults, totalCount }) {
   return (
     <div className="user-profile">
