@@ -17,6 +17,27 @@ function Search() {
   
   const [languages, setLanguages] = useState([]);
   
+  // Function to fetch user data
+  const fetchUserData = async (params) => {
+    const searchCriteria = {
+      username: params.username.trim(),
+      location: params.location?.trim(),
+      minRepos: params.minRepos,
+      minFollowers: params.minFollowers,
+      createdAfter: params.createdAfter,
+      language: params.language,
+      sortBy: params.sortBy,
+      order: params.order
+    };
+    
+    try {
+      return await githubService.searchUsers(searchCriteria);
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+      throw err; // Re-throw to handle in the calling function
+    }
+  };
+
   // Load available languages on component mount
   useEffect(() => {
     const fetchLanguages = async () => {
@@ -101,20 +122,8 @@ function Search() {
     setUserData(null);
 
     try {
-      // Prepare search parameters
-      const searchCriteria = {
-        username: searchParams.username.trim(),
-        location: searchParams.location.trim() || undefined,
-        minRepos: searchParams.minRepos || undefined,
-        minFollowers: searchParams.minFollowers || undefined,
-        createdAfter: searchParams.createdAfter || undefined,
-        language: searchParams.language || undefined,
-        sortBy: searchParams.sortBy,
-        order: searchParams.order
-      };
-      
-      // Fetch user data using our service
-      const result = await githubService.searchUsers(searchCriteria);
+      // Fetch user data using our new function
+      const result = await fetchUserData(searchParams);
       
       // Add to search history
       const newSearchHistory = [
@@ -125,7 +134,7 @@ function Search() {
       setSearchHistory(newSearchHistory);
       
       // Set user data for display - take the first result
-      if (result.items && result.items.length > 0) {
+      if (result?.items?.length > 0) {
         setUserData(result.items[0]);
       } else {
         setError('No users found matching the search criteria.');
