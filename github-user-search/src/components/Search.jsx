@@ -138,7 +138,7 @@ function Search() {
       if (result?.items?.length > 0) {
         setUserData(result.items[0]);
       } else {
-        setError('No users found matching the search criteria.');
+        setError('Looks like we cant find the user.');
       }
     } catch (err) {
       setError(err.message || 'Failed to fetch user data. Please check your search criteria and try again.');
