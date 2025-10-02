@@ -152,7 +152,7 @@ const searchUsers = async (searchParams = {}, page = 1, perPage = 10) => {
  * @param {string} username - The GitHub username (e.g., 'octocat')
  * @returns {Promise<Object>} User's profile information
  */
-const getUser = async (username) => {
+const fetchUserData = async (username) => {
   try {
     const response = await githubApi.get(`/users/${username}`);
     return response.data;
@@ -243,7 +243,7 @@ const getLanguages = async () => {
 // Export all the functions
 export default {
   // User data
-  getUser,
+  fetchUserData,
   
   // Search functionality
   searchUsers,

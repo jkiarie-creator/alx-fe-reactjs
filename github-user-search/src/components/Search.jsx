@@ -96,7 +96,8 @@ function Search() {
 
   // Handle input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, target } = e;
+    const value = target.value;
     setSearchParams(prev => ({
       ...prev,
       [name]: value
