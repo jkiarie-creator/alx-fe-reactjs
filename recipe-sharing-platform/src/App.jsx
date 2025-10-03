@@ -1,11 +1,7 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import HomePage from './components/HomePage'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
@@ -14,6 +10,7 @@ function App() {
           <p className="text-gray-600 mb-4">Welcome to our recipe sharing community!</p>
         </div>
       </div>
+      <HomePage />
     </div>
   )
 }
