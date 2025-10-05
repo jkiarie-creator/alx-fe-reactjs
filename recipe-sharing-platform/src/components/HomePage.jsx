@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import recipeData from '../data.json';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 const HomePage = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate API call with a timeout
@@ -58,12 +57,12 @@ const HomePage = () => {
               <div className="p-6">
                 <h2 className="text-gray-800 text-xl font-semibold mb-2">{recipe.title}</h2>
                 <p className="text-gray-600 mb-4">{recipe.summary}</p>
-                <button 
-                  className="text-emerald-600 hover:text-emerald-800 font-medium py-2 px-4 rounded transition-colors duration-300"
-                  onClick={() => navigate(`/recipe/${recipe.id}`)}
+                <Link 
+                  to={`/recipe/${recipe.id}`}
+                  className="inline-block text-emerald-600 hover:text-emerald-800 font-medium py-2 px-4 rounded transition-colors duration-300"
                 >
                   View Recipe
-                </button>
+                </Link>
               </div>
             </div>
           ))}
