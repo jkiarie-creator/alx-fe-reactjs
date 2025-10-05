@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import recipeData from '../data.json';
-
+import { useNavigate } from 'react-router-dom';
 const HomePage = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate API call with a timeout
@@ -42,29 +43,31 @@ const HomePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Delicious Recipes</h1>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            <img 
-              src={recipe.image} 
-              alt={recipe.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-2">{recipe.title}</h2>
-              <p className="text-gray-600 mb-4">{recipe.summary}</p>
-              <button 
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition-colors duration-300"
-                onClick={() => console.log('View recipe:', recipe.id)}
-              >
-                View Recipe
-              </button>
+    <div className="min-h-screen bg-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-12">Delicious Kenyan Recipes</h1>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recipes.map((recipe) => (
+            <div key={recipe.id} className=" gradient-to-b from-emerald-50 to-emerald-100 rounded-lg shadow-md overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-2 hover:scale-105">
+              <img 
+                src={recipe.image} 
+                alt={recipe.title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-6">
+                <h2 className="text-gray-800 text-xl font-semibold mb-2">{recipe.title}</h2>
+                <p className="text-gray-600 mb-4">{recipe.summary}</p>
+                <button 
+                  className="text-emerald-600 hover:text-emerald-800 font-medium py-2 px-4 rounded transition-colors duration-300"
+                  onClick={() => navigate(`/recipe/${recipe.id}`)}
+                >
+                  View Recipe
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

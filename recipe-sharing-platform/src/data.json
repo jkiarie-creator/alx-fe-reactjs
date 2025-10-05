@@ -1,14 +1,99 @@
 [
   {
     "id": 1,
-    "title": "Spaghetti Carbonara",
-    "summary": "A classic Italian pasta dish with eggs, cheese, bacon, and black pepper.",
-    "image": "https://via.placeholder.com/150"
+    "title": "Ugali with Sukuma Wiki",
+    "summary": "A staple Kenyan dish made from maize flour, served with collard greens in a tomato-based sauce.",
+    "image": "https://via.placeholder.com/800x500/FFE4C4/000000?text=Ugali+Sukuma+Wiki",
+    "prepTime": "10 mins",
+    "cookTime": "30 mins",
+    "servings": 4,
+    "difficulty": "Easy",
+    "ingredients": [
+      "2 cups maize flour (cornmeal)",
+      "4 cups water",
+      "1 bunch collard greens (sukuma wiki), chopped",
+      "2 tomatoes, diced",
+      "1 onion, sliced",
+      "2 cloves garlic, minced",
+      "1 tbsp vegetable oil",
+      "1 tsp ground cumin",
+      "1 tsp turmeric",
+      "Salt to taste",
+      "Water as needed"
+    ],
+    "instructions": [
+      "For Ugali: Bring 3 cups of water to boil in a heavy-bottomed saucepan.",
+      "In a separate bowl, mix maize flour with 1 cup cold water to make a smooth paste.",
+      "Add the paste to boiling water, stirring continuously to avoid lumps.",
+      "Reduce heat and continue stirring until the mixture thickens (about 10 minutes).",
+      "Cover and let it cook on low heat for 15 minutes, then shape into a round mound.",
+      "For Sukuma Wiki: Heat oil in a pan and sauté onions until translucent.",
+      "Add garlic, tomatoes, and spices, cook until tomatoes soften.",
+      "Add chopped collard greens and a little water, then cover to steam for 5-7 minutes.",
+      "Season with salt and serve hot with ugali."
+    ]
   },
   {
     "id": 2,
-    "title": "Chicken Tikka Masala",
-    "summary": "Chunks of grilled chicken (tikka) cooked in a smooth buttery & creamy tomato based gravy.",
-    "image": "https://via.placeholder.com/150"
+    "title": "Nyama Choma",
+    "summary": "Kenya's famous grilled meat, typically goat or beef, marinated in a simple spice rub and grilled to perfection.",
+    "image": "https://via.placeholder.com/800x500/FFE4C4/000000?text=Nyama+Choma",
+    "prepTime": "20 mins",
+    "cookTime": "45 mins",
+    "marinationTime": "2 hours",
+    "servings": 4,
+    "difficulty": "Medium",
+    "ingredients": [
+      "1 kg goat meat (or beef), cut into chunks",
+      "2 tbsp vegetable oil",
+      "2 lemons, juiced",
+      "4 cloves garlic, minced",
+      "1 tbsp ginger, grated",
+      "1 tbsp paprika",
+      "1 tsp cayenne pepper",
+      "1 tsp salt",
+      "1 tsp black pepper",
+      "2 tbsp fresh coriander, chopped"
+    ],
+    "instructions": [
+      "In a large bowl, mix lemon juice, garlic, ginger, paprika, cayenne, salt, and pepper.",
+      "Add meat to the marinade, ensuring all pieces are well coated. Cover and refrigerate for at least 2 hours, preferably overnight.",
+      "Preheat grill to medium-high heat.",
+      "Thread meat onto skewers if using smaller pieces.",
+      "Grill meat for about 20-25 minutes, turning occasionally, until well-browned and cooked through.",
+      "Let it rest for 5 minutes before serving.",
+      "Garnish with fresh coriander and serve with kachumbari (tomato and onion salad) and ugali."
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Chapati",
+    "summary": "Soft, flaky flatbread that's a staple in Kenyan cuisine, perfect for scooping up stews and vegetables.",
+    "image": "https://via.placeholder.com/800x500/FFE4C4/000000?text=Chapati",
+    "prepTime": "30 mins",
+    "cookTime": "30 mins",
+    "restingTime": "30 mins",
+    "servings": 6,
+    "difficulty": "Medium",
+    "ingredients": [
+      "3 cups all-purpose flour",
+      "1 tsp salt",
+      "1 tbsp sugar",
+      "1 cup warm water",
+      "3 tbsp vegetable oil",
+      "1/2 cup ghee or vegetable oil (for cooking)"
+    ],
+    "instructions": [
+      "In a large bowl, mix flour, salt, and sugar.",
+      "Add 2 tbsp oil and mix to make the dough soft.",
+      "Gradually add warm water, kneading to form a soft, elastic dough (about 10 minutes).",
+      "Coat dough with remaining oil, cover with a damp cloth, and let rest for 30 minutes.",
+      "Divide dough into 8 equal balls and roll each into a thin circle.",
+      "Heat a flat pan over medium heat and brush with ghee or oil.",
+      "Cook each chapati for about 1-2 minutes on each side, pressing down with a spatula until golden brown spots appear.",
+      "Brush with more ghee or oil while cooking for extra flakiness.",
+      "Keep cooked chapatis covered with a clean cloth to keep them soft.",
+      "Serve warm with your favorite stew or curry."
+    ]
   }
 ]
