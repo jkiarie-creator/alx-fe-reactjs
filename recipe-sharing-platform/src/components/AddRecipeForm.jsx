@@ -9,10 +9,10 @@ const AddRecipeForm = ({ onAddRecipe }) => {
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: e.target.value
     }));
     // Clear error when user starts typing
     if (errors[name]) {
