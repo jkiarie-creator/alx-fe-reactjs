@@ -4,7 +4,7 @@ export default function RegistrationForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
   function handleSubmit(event) {
@@ -12,11 +12,11 @@ export default function RegistrationForm() {
     setSubmitted(false);
 
     if (!username.trim() || !email.trim() || !password.trim()) {
-      setError("All fields are required.");
+      setErrors({ username: "Username is required", email: "Email is required", password: "Password is required" });
       return;
     }
 
-    setError("");
+    setErrors({});
     setSubmitted(true);
   }
 
@@ -55,14 +55,27 @@ export default function RegistrationForm() {
         />
       </div>
 
-      {error && (
-        <p style={{ color: "#b00020", marginTop: "8px" }}>{error}</p>
+      {errors.username && (
+        <p style={{ color: "#b00020", marginTop: "8px" }}>{errors.username}</p>
       )}
-      {submitted && !error && (
+      {submitted && !errors.username && (
         <p style={{ color: "#1b5e20", marginTop: "8px" }}>
           Registration submitted successfully!
-        </p>
+        </p>)}
+      {errors.email && (
+        <p style={{ color: "#b00020", marginTop: "8px" }}>{errors.email}</p>
       )}
+      {submitted && !errors.email && (
+        <p style={{ color: "#1b5e20", marginTop: "8px" }}>
+          Registration submitted successfully!
+        </p>)}
+      {errors.password && (
+        <p style={{ color: "#b00020", marginTop: "8px" }}>{errors.password}</p>
+      )}
+      {submitted && !errors.password && (
+        <p style={{ color: "#1b5e20", marginTop: "8px" }}>
+          Registration submitted successfully!
+        </p>)}
 
       <button type="submit" style={{ marginTop: "12px" }}>
         Register
