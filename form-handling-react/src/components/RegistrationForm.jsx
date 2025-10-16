@@ -11,8 +11,16 @@ export default function RegistrationForm() {
     event.preventDefault();
     setSubmitted(false);
 
-    if (!username.trim() || !email.trim() || !password.trim()) {
-      setErrors({ username: "Username is required", email: "Email is required", password: "Password is required" });
+    if (!username.trim()) {
+      setErrors({ username: "Username is required" });
+      return;
+    }
+    if (!email.trim()) {
+      setErrors({ email: "Email is required" });
+      return;
+    }
+    if (!password.trim()) {
+      setErrors({ password: "Password is required" });
       return;
     }
 
