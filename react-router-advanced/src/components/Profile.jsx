@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, Routes, Route } from 'react-router-dom'
 
 export function ProfileLayout() {
   return (
@@ -30,6 +30,18 @@ export function ProfileSettings() {
       <h2>Profile Settings</h2>
       <p>Manage your preferences and account settings.</p>
     </div>
+  )
+}
+
+// Self-contained nested routing for the Profile section
+export default function Profile() {
+  return (
+    <Routes>
+      <Route element={<ProfileLayout />}>
+        <Route index element={<ProfileDetails />} />
+        <Route path="settings" element={<ProfileSettings />} />
+      </Route>
+    </Routes>
   )
 }
 

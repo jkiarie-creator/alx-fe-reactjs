@@ -1,7 +1,7 @@
 import './App.css'
 import { useState, createContext, useContext } from 'react'
 import { BrowserRouter, Routes, Route, Link, useParams, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { ProfileLayout, ProfileDetails, ProfileSettings } from './components/Profile.jsx'
+import Profile from './components/Profile.jsx'
 
 // Simple auth context to simulate authentication
 const AuthContext = createContext(null)
@@ -52,7 +52,6 @@ function AboutPage() {
   )
 }
 
-// Profile components moved to src/Profile.jsx
 
 function BlogPost() {
   const { postId } = useParams()
@@ -118,16 +117,13 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route
-            path="/profile"
+            path="/profile/*"
             element={
               <ProtectedRoute>
-                <ProfileLayout />
+                <Profile />
               </ProtectedRoute>
             }
-          >
-            <Route index element={<ProfileDetails />} />
-            <Route path="settings" element={<ProfileSettings />} />
-          </Route>
+          />
           <Route path="/blog/:postId" element={<BlogPost />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
