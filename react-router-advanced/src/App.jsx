@@ -1,38 +1,10 @@
 import './App.css'
-import { useState, createContext, useContext } from 'react'
-import { BrowserRouter, Routes, Route, Link, useParams, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, useParams, useLocation, useNavigate } from 'react-router-dom'
 import Profile from './components/Profile.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { AuthProvider, useAuth } from './components/auth.jsx'
 
-// Simple auth context to simulate authentication
-const AuthContext = createContext(null)
-
-function useAuth() {
-  return useContext(AuthContext)
-}
-
-function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  function login() {
-    setIsAuthenticated(true)
-  }
-
-  function logout() {
-    setIsAuthenticated(false)
-  }
-
-  const value = { isAuthenticated, login, logout }
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-function ProtectedRoute({ children }) {
-  const auth = useAuth()
-  const location = useLocation()
-  if (!auth.isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />
-  }
-  return children
-}
+// Auth and ProtectedRoute extracted to components
 
 function HomePage() {
   return (
