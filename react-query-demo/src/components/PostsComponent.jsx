@@ -15,6 +15,7 @@ function PostsComponent() {
     staleTime: 1000 * 60, // 1 minute
     cacheTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false,
+    keepPreviousData: true,
   })
 
   if (isLoading) {
