@@ -1,6 +1,7 @@
 import './App.css'
 import { useState, createContext, useContext } from 'react'
-import { BrowserRouter, Routes, Route, Link, Outlet, useParams, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Link, useParams, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { ProfileLayout, ProfileDetails, ProfileSettings } from './components/Profile.jsx'
 
 // Simple auth context to simulate authentication
 const AuthContext = createContext(null)
@@ -51,38 +52,7 @@ function AboutPage() {
   )
 }
 
-function ProfileLayout() {
-  return (
-    <div>
-      <h1>Profile</h1>
-      <nav style={{ display: 'flex', gap: '1rem' }}>
-        <Link to="">Details</Link>
-        <Link to="settings">Settings</Link>
-      </nav>
-      <div style={{ paddingTop: '1rem' }}>
-        <Outlet />
-      </div>
-    </div>
-  )
-}
-
-function ProfileDetails() {
-  return (
-    <div>
-      <h2>Profile Details</h2>
-      <p>Basic information about the user.</p>
-    </div>
-  )
-}
-
-function ProfileSettings() {
-  return (
-    <div>
-      <h2>Profile Settings</h2>
-      <p>Manage your preferences and account settings.</p>
-    </div>
-  )
-}
+// Profile components moved to src/Profile.jsx
 
 function BlogPost() {
   const { postId } = useParams()
