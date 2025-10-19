@@ -8,4 +8,16 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.js'],
     globals: true,
   },
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.[jt]sx?$/,
+    exclude: [],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
 })
